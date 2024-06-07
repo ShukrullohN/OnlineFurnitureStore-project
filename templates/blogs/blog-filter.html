@@ -6,10 +6,13 @@
         <div class="title-block">Categories</div>
         <div class="block-content">
             {% for cat in categories %}
-            <div class="cateTitle hasSubCategory open level1">                                             
-                <a class="cateItem" href="?cat={{ cat.id }}">{{cat.name}}</a>                                             
-            </div> 
-            {% endfor %}  
+                <div class="cateTitle hasSubCategory open level1">
+                    <a {% if 'blogs/detail' in request.path %}
+                        href="{% url 'blogs:list' %}?cat={{ cat.pk }}" {% else %}
+                        style="cursor: pointer" class="cateItem" onclick="addUrlParameter('cat', '{{ cat.pk }}')"
+                    {% endif %}>{{ cat.name }}</a>
+                </div>
+            {% endfor %}
         </div>
     </div>
 
@@ -18,24 +21,24 @@
         <div class="title-block">Recent Posts</div>
         <div class="post-item-content">
             {% for blog in famous_blogs %}
-            <div>
-                <div class="late-item first-child">
-                    <a href="{% url 'blogs:detail' pk=blog.id %}">
-                        <p class="content-title">{{blog.title}}</p>
-                    </a>
-                    <span>
-                        <i class="zmdi zmdi-comments"></i>13 comment
-                    </span>
-                    <span>
-                        <i class="zmdi zmdi-calendar-note"></i>{{blog.created_at}}
-                    </span>
-                    <p class="description">{{blog.short_info}}
-                    </p>
-                    <p class="remove">
-                        <a href="{% url 'blogs:detail' pk=blog.id %}">READ MORE</a>
-                    </p>
+                <div>
+                    <div class="late-item first-child">
+                        <a href="{% url 'blogs:detail' pk=blog.id %}">
+                            <p class="content-title">{{ blog.title }}</p>
+                        </a>
+                        <span>
+                                                            <i class="zmdi zmdi-comments"></i>13 comment
+                                                        </span>
+                        <span>
+                                                            <i class="zmdi zmdi-calendar-note"></i>{{ blog.created_at }}
+                                                        </span>
+                        <p class="description">{{ blog.short_info }}
+                        </p>
+                        <p class="remove">
+                            <a href="{% url 'blogs:detail' pk=blog.id %}">READ MORE</a>
+                        </p>
+                    </div>
                 </div>
-            </div>
             {% endfor %}
         </div>
     </div>
@@ -47,10 +50,15 @@
         </div>
         <div class="block-content">
             <ul class="listSidebarBlog list-unstyled">
-                {% for tg in tags %}
-                <li>
-                    <a href="#" title="Show products matching tag Hot Trend">{{ tg.name }}</a>
-                </li>
+                {% for tag in tags %}
+                    <li>
+                        <a{% if '/blogs/detail' in  request.path %}
+                            href="{% url 'blogs:list' %}?tag={{ tag.pk }}" {% else %}
+                            style="cursor: pointer" onclick="addUrlParameter('tag', '{{ tag.pk }}')"
+                        {% endif %}
+
+                           title="Show products matching tag Hot Trend">{{ tag.name }}</a>
+                    </li>
                 {% endfor %}
             </ul>
         </div>

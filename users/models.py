@@ -1,5 +1,7 @@
 from django.contrib.auth import get_user_model
 from django.db import models
+from django.utils.translation import gettext_lazy as _
+
 UserModel = get_user_model()
 
 
@@ -13,18 +15,18 @@ class VerificationCodeModel(models.Model):
         return self.code
 
     class Meta:
-        verbose_name = 'Verification Code'
-        verbose_name_plural = 'Verification Codes'
+        verbose_name = _('Verification Code')
+        verbose_name_plural = _('Verification Codes')
 
 
 class AccountModel(models.Model):
     user = models.OneToOneField(UserModel, on_delete=models.CASCADE, related_name='account')
-    full_name = models.CharField(max_length=255, null=True, blank=True)
-    company = models.CharField(max_length=255, null=True, blank=True)
-    city = models.CharField(max_length=255, null=True, blank=True)
-    address = models.CharField(max_length=255, null=True, blank=True)
+    full_name = models.CharField(max_length=255, null=True, blank=True, verbose_name=_('full_name'))
+    company = models.CharField(max_length=255, null=True, blank=True, verbose_name=_('company'))
+    city = models.CharField(max_length=255, null=True, blank=True, verbose_name=_('city'))
+    address = models.CharField(max_length=255, null=True, blank=True, verbose_name=_('address'))
     postcode = models.CharField(max_length=255, null=True, blank=True)
-    phone = models.CharField(max_length=50, null=True, blank=True)
+    phone = models.CharField(max_length=50, null=True, blank=True, verbose_name=_('phone'))
     country = models.CharField(max_length=255, null=True, blank=True)
 
     def __str__(self):

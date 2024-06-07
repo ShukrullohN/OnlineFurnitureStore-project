@@ -1,8 +1,11 @@
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import render, redirect
-from django.views.generic import TemplateView, ListView, DetailView
+from django.urls import reverse_lazy
+from django.views.generic import TemplateView, ListView, DetailView, CreateView
 
+from products.forms import ProductCommentModelForm
 from products.models import ProductModel, ProductCategoryModel, ProductColorModel, ProductTagModel, ProductManufacture, \
-    ProductImageModel
+    ProductImageModel, ProductCommentModel
 
 
 class ProductsListView(ListView):
@@ -67,6 +70,7 @@ class ProductsListView(ListView):
 class ProductDetailView(DetailView):
     template_name = 'products/product-detail.html'
     model = ProductModel
+    context_object_name = 'product'
 
     @staticmethod
     def change_colors_structure():
@@ -86,13 +90,17 @@ class ProductDetailView(DetailView):
 
         return colors_list
 
-    def get_context_data(self, **kwargs):
+    def get_context_data(self, *, object_list=None,  **kwargs):
+        product = ProductModel.objects.get(id=self.kwargs["pk"])
         context = super().get_context_data(**kwargs)
-        context['products'] = ProductModel.objects.all()
-        context['categories'] = ProductCategoryModel.objects.all()
-        context['manufactures'] = ProductManufacture.objects.all()
-        context['tags'] = ProductTagModel.objects.all()
-        context['colors'] = ProductColorModel.objects.all()
+        context.update({
+            'comments': product.comments.all(),
+            'products': ProductModel.objects.all(),
+            'categories': ProductCategoryModel.objects.all(),
+            'manufactures': ProductManufacture.objects.all(),
+            'tags': ProductTagModel.objects.all(),
+            'colors': ProductColorModel.objects.all()
+        })
         return context
 
 
@@ -118,3 +126,24 @@ def add_or_remove_likes(request, pk):
 
     request.session['likes'] = likes
     return redirect(request.GET.get('nextt', 'products:list'))
+
+
+class ProductCommentView(LoginRequiredMixin, CreateView):
+    template_name = 'products/product-detail.html'
+    form_class = ProductCommentModelForm
+    login_url = reverse_lazy('users:login')
+
+    def form_valid(self, form):
+        product_id = self.kwargs['pk']
+        product = ProductModel.objects.get(pk=product_id)
+        comment = form.save(commit=False)
+        comment.user = self.request.user
+        comment.product = product
+        comment.save()
+        return self.get_success_url()
+
+    def form_invalid(self, form):
+        return self.success_url()
+
+    def get_success_url(self):
+        return redirect(self.request.GET.get('next', 'products:list'))

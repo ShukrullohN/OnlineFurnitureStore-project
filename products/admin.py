@@ -48,3 +48,10 @@ class ProductModelAdmin(admin.ModelAdmin):
     list_filter = ('created_at', 'updated_at')
     inlines = [ProductImageModelAdmin]
     readonly_fields = ['real_price']
+
+
+@admin.register(ProductCommentModel)
+class ProductCommentModelAdmin(admin.ModelAdmin):
+    list_display = ('id', 'message', 'created_at', 'updated_at',)
+    search_fields = ['message']
+    list_filter = ('created_at', 'updated_at',) 
